@@ -1,6 +1,7 @@
 import { FieldArray, Formik } from 'formik';
 import { FC, useEffect, useRef } from 'react';
 import * as Yup from 'yup';
+import { useStore } from '../../../data/stores/StoreContext';
 import { generateJSONLFile } from '../../../data/utils/generateJSONLFile';
 import { InputField } from '../InputField/InputField';
 import { JSONLPreview } from '../Preview/Preview';
@@ -31,6 +32,7 @@ const validationSchema = Yup.object({
 
 export const Form: FC = () => {
   const formikRef = useRef<any>(null);
+  const { notificationStore } = useStore();
 
   useEffect(() => {
     const handleFileDataParsed = (event: CustomEvent) => {
@@ -68,6 +70,10 @@ export const Form: FC = () => {
     }));
 
     generateJSONLFile(jsonlContent.map((item) => JSON.stringify(item)));
+    notificationStore.addNotification(
+      'JSONL file downloaded successfully',
+      'success',
+    );
   };
 
   return (

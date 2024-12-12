@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { AnimatePresence } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../../stores/StoreContext';
+import { useStore } from '../../../data/stores/StoreContext';
 import { CloseButton } from '../UI/CloseButton';
 import { ModalContent } from '../UI/ModalContent';
 import { ModalOverlay } from '../UI/ModalOverlay';

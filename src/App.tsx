@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { RootStore } from './stores/RootStore';
-import { StoreProvider } from './stores/StoreContext';
+import { RootStore } from './data/stores/RootStore';
+import { StoreProvider } from './data/stores/StoreContext';
 import './styles.css';
 import { AppDescription } from './view/components/AppDescription/AppDescription';
 import { Form } from './view/components/Form/Form';
+import { Notifications } from './view/components/Notifications/Notifications';
 import { Upload } from './view/components/Upload/Upload';
 
 const rootStore = new RootStore();
@@ -25,6 +26,7 @@ export const App = () => {
   return (
     <StoreProvider store={rootStore}>
       <div className="app">
+        <Notifications />
         <header className="app-header">
           <h1 className="app-title">JSONL File Generator</h1>
 
