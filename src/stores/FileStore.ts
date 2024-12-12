@@ -30,13 +30,12 @@ export class FileStore {
       const lines = content.split('\n').filter((line) => line.trim());
       const jsonObjects = lines.map((line) => JSON.parse(line));
 
-      // Get the first object's system prompt (assuming all have the same prompt)
       const firstObject = jsonObjects[0];
       const prompt =
-        firstObject.messages.find((msg) => msg.role === 'system')?.content ||
-        '';
+        firstObject.messages.find(
+          (msg: { role: string }) => msg.role === 'system',
+        )?.content || '';
 
-      // Combine all user-assistant pairs from all objects
       const inputs = jsonObjects.flatMap((data) => {
         const messages = data.messages;
         if (!Array.isArray(messages)) return [];
