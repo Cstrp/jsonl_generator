@@ -1,7 +1,7 @@
+import { useTheme } from '@/data/context/ThemeContext';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import React from 'react';
-import { useTheme } from '../../context/ThemeContext';
 
 const ToggleButton = styled(motion.button)`
   width: 100%;
