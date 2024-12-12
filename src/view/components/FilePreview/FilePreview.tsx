@@ -88,10 +88,7 @@ export const FilePreview = observer(() => {
             <p>Size: {(currentFile.size / 1024).toFixed(2)} KB</p>
             <p>Uploaded: {currentFile.uploadedAt.toLocaleString()}</p>
           </FileInfo>
-          <ContentPreview>
-            {currentFile.content.slice(0, 1000)}
-            {currentFile.content.length > 1000 && '...'}
-          </ContentPreview>
+          <ContentPreview>{currentFile.content}</ContentPreview>
         </ModalContent>
       </ModalOverlay>
     </AnimatePresence>
