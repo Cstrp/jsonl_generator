@@ -96,7 +96,14 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
+
+  justify-content: flex-start;
+
+  @media (max-width: 1024px) {
+    justify-content: center;
+  }
 `;
 
 const PairCounter = styled.span`
