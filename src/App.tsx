@@ -15,6 +15,8 @@ export const App = () => {
     inputs: { req: string; res: string }[];
   }>({ prompt: '', inputs: [] });
 
+  console.log(formValues);
+
   useEffect(() => {
     const prefersDarkScheme = window.matchMedia(
       '(prefers-color-scheme: dark)',

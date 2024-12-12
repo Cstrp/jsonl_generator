@@ -156,7 +156,7 @@ export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
               </Section>
 
               <FieldArray name="inputs">
-                {({ remove, push, form }) => (
+                {({ remove, push }) => (
                   <Section>
                     <SectionTitle>Request & Response Pairs</SectionTitle>
                     {values.inputs.map((_, index) => (
