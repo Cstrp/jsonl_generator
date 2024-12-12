@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { FieldArray, Formik, Form as FormikForm } from 'formik';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import * as Yup from 'yup';
 import { generateJSONLFile } from '../../../data/utils/generateJSONLFile';
 import { InputField } from '../InputField/InputField';
@@ -93,6 +93,21 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   }
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const PairCounter = styled.span`
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+`;
+
 interface FormValues {
   prompt: string;
   inputs: { req: string; res: string }[];
@@ -114,6 +129,29 @@ const validationSchema = Yup.object({
 });
 
 export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
+  const formikRef = useRef<any>(null);
+
+  useEffect(() => {
+    const handleFileDataParsed = (event: CustomEvent) => {
+      const parsedData = event.detail;
+      if (formikRef.current) {
+        formikRef.current.setValues(parsedData);
+      }
+    };
+
+    window.addEventListener(
+      'fileDataParsed',
+      handleFileDataParsed as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        'fileDataParsed',
+        handleFileDataParsed as EventListener,
+      );
+    };
+  }, []);
+
   const initialValues: FormValues = {
     prompt: '',
     inputs: [{ req: '', res: '' }],
@@ -135,6 +173,7 @@ export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
   return (
     <FormContainer>
       <Formik
+        innerRef={formikRef}
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -182,13 +221,19 @@ export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
                         </ButtonGroup>
                       </InputGroup>
                     ))}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => push({ req: '', res: '' })}
-                    >
-                      Add Request/Response Pair
-                    </Button>
+                    <ButtonContainer>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => push({ req: '', res: '' })}
+                      >
+                        Add Request/Response Pair
+                      </Button>
+                      <PairCounter>
+                        {values.inputs.length} pair
+                        {values.inputs.length !== 1 ? 's' : ''}
+                      </PairCounter>
+                    </ButtonContainer>
                   </Section>
                 )}
               </FieldArray>

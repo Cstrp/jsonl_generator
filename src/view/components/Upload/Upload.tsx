@@ -30,7 +30,17 @@ export const Upload = observer(() => {
       try {
         const file = acceptedFiles[0];
         if (file) {
-          await fileStore.addFile(file);
+          const fileId = await fileStore.addFile(file);
+          const fileData = fileStore.getFile(fileId);
+
+          if (fileData?.parsedData) {
+            // Dispatch a custom event with the parsed data
+            const event = new CustomEvent('fileDataParsed', {
+              detail: fileData.parsedData,
+            });
+            window.dispatchEvent(event);
+          }
+
           fileStore.openPreview();
         }
       } catch (error) {
