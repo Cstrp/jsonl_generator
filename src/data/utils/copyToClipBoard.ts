@@ -9,10 +9,7 @@ export const copyTextToClipboard = async (
         return document.execCommand('copy', true, text);
       }
     }
-
-    return false;
   } catch (error) {
     console.log(error);
-    return false;
   }
 };

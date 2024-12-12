@@ -71,21 +71,13 @@ export const JSONLPreview: FC<JSONLPreviewProps> = observer(({ formData }) => {
         .map((item) => JSON.stringify(item))
         .join('\n');
 
-      const success = await copyTextToClipboard(content);
+      await copyTextToClipboard(content);
+      setIsCopied(true);
+      notificationStore.addNotification('Content successfully copied!', 'info');
 
-      if (success) {
-        setIsCopied(true);
-        notificationStore.addNotification(
-          'Content successfully copied!',
-          'info',
-        );
-
-        setTimeout(() => {
-          setIsCopied(false);
-        }, 2000);
-      } else {
-        notificationStore.addNotification('Failed to copy content.', 'error');
-      }
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
     } catch (error) {
       notificationStore.addNotification(
         'An error occurred while copying.',
