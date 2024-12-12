@@ -1,13 +1,16 @@
-export const generateJSONLFile = (content: string[], filename: string) => {
+export const generateJSONLFile = (content: string[]) => {
   const jsonlContent = content.join('\n');
   const blob = new Blob([jsonlContent], { type: 'application/json' });
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
+  const filename = Date.now().toString();
 
   link.href = url;
   link.download = `${filename}.jsonl`;
-  document.body.appendChild(link); // Добавляем элемент в body
+  document.body.appendChild(link);
+
   link.click();
-  document.body.removeChild(link); // Удаляем элемент после использования
+
+  document.body.removeChild(link);
   window.URL.revokeObjectURL(url);
 };
