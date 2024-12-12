@@ -2,6 +2,8 @@ import styled from '@emotion/styled';
 import { AnimatePresence } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { FC, useState } from 'react';
+import { useStore } from '../../../data/stores/StoreContext';
+import { copyTextToClipboard } from '../../../data/utils/copyToClipBoard';
 import { Button } from '../UI/Button';
 import { CloseButton } from '../UI/CloseButton';
 import { ModalContent } from '../UI/ModalContent';
@@ -25,6 +27,22 @@ const Title = styled.h3`
   margin-bottom: 1rem;
 `;
 
+const HeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const CopyButton = styled(Button)`
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  margin: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
 interface JSONLPreviewProps {
   formData: {
     prompt: string;
@@ -33,7 +51,9 @@ interface JSONLPreviewProps {
 }
 
 export const JSONLPreview: FC<JSONLPreviewProps> = observer(({ formData }) => {
+  const { notificationStore } = useStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const generatePreviewContent = () => {
     return formData.inputs.map((input) => ({
@@ -45,14 +65,39 @@ export const JSONLPreview: FC<JSONLPreviewProps> = observer(({ formData }) => {
     }));
   };
 
+  const handleCopy = async () => {
+    try {
+      const content = generatePreviewContent()
+        .map((item) => JSON.stringify(item))
+        .join('\n');
+
+      const success = await copyTextToClipboard(content);
+
+      if (success) {
+        setIsCopied(true);
+        notificationStore.addNotification(
+          'Content successfully copied!',
+          'info',
+        );
+
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+      } else {
+        notificationStore.addNotification('Failed to copy content.', 'error');
+      }
+    } catch (error) {
+      notificationStore.addNotification(
+        'An error occurred while copying.',
+        'error',
+      );
+      console.error('Copy error:', error);
+    }
+  };
+
   return (
-    <>
-      <Button
-        onClick={(evt) => {
-          evt.preventDefault();
-          setIsOpen(true);
-        }}
-      >
+    <div className="mt-5">
+      <Button onClick={() => setIsOpen(true)} type="button">
         <span>👁️</span> Preview output
       </Button>
 
@@ -71,16 +116,25 @@ export const JSONLPreview: FC<JSONLPreviewProps> = observer(({ formData }) => {
               onClick={(e) => e.stopPropagation()}
             >
               <CloseButton onClick={() => setIsOpen(false)}>×</CloseButton>
-              <Title>Preview output</Title>
+
+              <HeaderContainer>
+                <Title>Preview output</Title>
+              </HeaderContainer>
+
               <PreviewContent>
                 {generatePreviewContent()
                   .map((item) => JSON.stringify(item))
                   .join('\n')}
               </PreviewContent>
+
+              <CopyButton onClick={handleCopy} type="button">
+                <span>{isCopied ? '✅' : '📋'}</span>
+                {isCopied ? 'Copied!' : 'Copy to clipboard'}
+              </CopyButton>
             </ModalContent>
           </ModalOverlay>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 });

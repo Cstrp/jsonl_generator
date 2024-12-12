@@ -1,16 +1,15 @@
 export const generateJSONLFile = (content: string[]) => {
-  const jsonlContent = content.join('\n');
-  const blob = new Blob([jsonlContent], { type: 'application/json' });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  const filename = Date.now().toString();
-
-  link.href = url;
-  link.download = `${filename}.jsonl`;
-  document.body.appendChild(link);
-
-  link.click();
-
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  try {
+    const blob = new Blob([content.join('\n')], { type: 'application/jsonl' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${Date.now()}.jsonl`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error generating file:', error);
+  }
 };

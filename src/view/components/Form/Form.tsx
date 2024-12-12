@@ -1,10 +1,9 @@
 import { FieldArray, Formik } from 'formik';
-import { FC, useEffect, useRef } from 'react';
+import { FC, useCallback, useEffect, useRef } from 'react';
 import * as Yup from 'yup';
 import { useStore } from '../../../data/stores/StoreContext';
 import { generateJSONLFile } from '../../../data/utils/generateJSONLFile';
 import { InputField } from '../InputField/InputField';
-import { JSONLPreview } from '../Preview/Preview';
 import { Button } from '../UI/Button';
 import { ButtonContainer } from '../UI/ButtonContainer';
 import { ButtonGroup } from '../UI/ButtonGroup';
@@ -30,7 +29,9 @@ const validationSchema = Yup.object({
   ),
 });
 
-export const Form: FC = () => {
+export const Form: FC<{ onChange: (values: FormValues) => void }> = ({
+  onChange,
+}) => {
   const formikRef = useRef<any>(null);
   const { notificationStore } = useStore();
 
@@ -60,21 +61,31 @@ export const Form: FC = () => {
     inputs: [{ req: '', res: '' }],
   };
 
-  const handleSubmit = (values: FormValues) => {
-    const jsonlContent = values.inputs.map((input) => ({
-      messages: [
-        { role: 'system', content: values.prompt },
-        { role: 'user', content: input.req },
-        { role: 'assistant', content: input.res },
-      ],
-    }));
+  const handleSubmit = useCallback(
+    (values: FormValues) => {
+      try {
+        const jsonlContent = values.inputs.map((input) => ({
+          messages: [
+            { role: 'system', content: values.prompt },
+            { role: 'user', content: input.req },
+            { role: 'assistant', content: input.res },
+          ],
+        }));
 
-    generateJSONLFile(jsonlContent.map((item) => JSON.stringify(item)));
-    notificationStore.addNotification(
-      'JSONL file downloaded successfully',
-      'success',
-    );
-  };
+        generateJSONLFile(jsonlContent.map((item) => JSON.stringify(item)));
+        notificationStore.addNotification(
+          'JSONL file generated successfully!',
+          'success',
+        );
+      } catch (error) {
+        notificationStore.addNotification(
+          'Error generating JSONL file',
+          'error',
+        );
+      }
+    },
+    [notificationStore],
+  );
 
   return (
     <FormContainer>
@@ -82,9 +93,17 @@ export const Form: FC = () => {
         innerRef={formikRef}
         initialValues={initialValues}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={(values, { setSubmitting }) => {
+          setSubmitting(true);
+          handleSubmit(values);
+          setSubmitting(false);
+        }}
       >
         {({ values }) => {
+          useEffect(() => {
+            onChange(values);
+          }, [values, onChange]);
+
           return (
             <StyledForm>
               <Section>
@@ -141,10 +160,13 @@ export const Form: FC = () => {
               </FieldArray>
 
               <ButtonGroup>
-                <Button type="submit" variant="primary">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  onClick={() => handleSubmit(values)}
+                >
                   Generate JSONL File
                 </Button>
-                <JSONLPreview formData={values} />
               </ButtonGroup>
             </StyledForm>
           );
