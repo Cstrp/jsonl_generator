@@ -10,12 +10,6 @@ const rootStore = new RootStore();
 
 export const App = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [formValues, setFormValues] = useState<{
-    prompt: string;
-    inputs: { req: string; res: string }[];
-  }>({ prompt: '', inputs: [] });
-
-  console.log(formValues);
 
   useEffect(() => {
     const prefersDarkScheme = window.matchMedia(
@@ -27,20 +21,6 @@ export const App = () => {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
-
-  const handleFormSubmit = (values: {
-    prompt: string;
-    inputs: { req: string; res: string }[];
-  }) => {
-    setFormValues(values);
-  };
-
-  const handleFormChange = (values: {
-    prompt: string;
-    inputs: { req: string; res: string }[];
-  }) => {
-    setFormValues(values);
-  };
 
   return (
     <StoreProvider store={rootStore}>
@@ -57,9 +37,10 @@ export const App = () => {
         </header>
         <main className="app-content">
           <AppDescription />
+
           <Upload />
 
-          <Form onChange={handleFormChange} onSubmit={handleFormSubmit} />
+          <Form />
         </main>
       </div>
     </StoreProvider>

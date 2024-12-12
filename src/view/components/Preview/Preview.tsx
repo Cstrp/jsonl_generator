@@ -1,74 +1,86 @@
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
-import React from 'react';
-
-interface PreviewProps {
-  prompt: string;
-  inputs: { req: string; res: string }[];
-}
-
-const PreviewWrapper = styled(motion.div)`
-  margin-top: 2rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
+import { AnimatePresence } from 'framer-motion';
+import { observer } from 'mobx-react-lite';
+import { FC, useState } from 'react';
+import { Button } from '../UI/Button';
+import { CloseButton } from '../UI/CloseButton';
+import { ModalContent } from '../UI/ModalContent';
+import { ModalOverlay } from '../UI/ModalOverlay';
 
 const PreviewContent = styled.pre`
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  background: #272822;
-  color: #f8f8f2;
+  background: var(--primary);
   padding: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow-x: auto;
   font-family: 'Fira Code', monospace;
-  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--foreground);
+  margin-top: 1rem;
 `;
 
-const EmptyMessage = styled.p`
-  opacity: 0.7;
-  transition: opacity 0.3s ease;
+const Title = styled.h3`
+  font-size: 1.25rem;
+  color: var(--foreground);
+  margin-bottom: 1rem;
 `;
 
-export const Preview: React.FC<PreviewProps> = React.memo(
-  ({ prompt, inputs }) => {
-    if (!prompt && inputs.length === 0) {
-      return (
-        <PreviewWrapper>
-          <EmptyMessage>Start typing to see the preview...</EmptyMessage>
-        </PreviewWrapper>
-      );
-    }
+interface JSONLPreviewProps {
+  formData: {
+    prompt: string;
+    inputs: { req: string; res: string }[];
+  };
+}
 
-    const previewContent = inputs.map((input) => ({
+export const JSONLPreview: FC<JSONLPreviewProps> = observer(({ formData }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const generatePreviewContent = () => {
+    return formData.inputs.map((input) => ({
       messages: [
-        { role: 'system', content: prompt },
+        { role: 'system', content: formData.prompt },
         { role: 'user', content: input.req },
         { role: 'assistant', content: input.res },
       ],
     }));
+  };
 
-    return (
-      <PreviewWrapper
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.5,
-          ease: 'easeOut',
+  return (
+    <>
+      <Button
+        onClick={(evt) => {
+          evt.preventDefault();
+          setIsOpen(true);
         }}
       >
-        <h2>Preview</h2>
-        <PreviewContent>
-          {previewContent
-            .map((item) => JSON.stringify(item, null, 2))
-            .join('\n')}
-        </PreviewContent>
-      </PreviewWrapper>
-    );
-  },
-);
+        <span>👁️</span> Preview output
+      </Button>
 
-Preview.displayName = 'Preview';
+      <AnimatePresence>
+        {isOpen && (
+          <ModalOverlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+          >
+            <ModalContent
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CloseButton onClick={() => setIsOpen(false)}>×</CloseButton>
+              <Title>Preview output</Title>
+              <PreviewContent>
+                {generatePreviewContent()
+                  .map((item) => JSON.stringify(item))
+                  .join('\n')}
+              </PreviewContent>
+            </ModalContent>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
+    </>
+  );
+});

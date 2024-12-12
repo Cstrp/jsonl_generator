@@ -1,128 +1,22 @@
-import styled from '@emotion/styled';
-import { FieldArray, Formik, Form as FormikForm } from 'formik';
+import { FieldArray, Formik } from 'formik';
 import { FC, useEffect, useRef } from 'react';
 import * as Yup from 'yup';
 import { generateJSONLFile } from '../../../data/utils/generateJSONLFile';
 import { InputField } from '../InputField/InputField';
-
-const FormContainer = styled.div`
-  margin-top: 2rem;
-  background: var(--card-bg);
-  border-radius: 16px;
-  padding: 2rem;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 6px var(--shadow);
-`;
-
-const StyledForm = styled(FormikForm)`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-const Section = styled.div`
-  margin-bottom: 1rem;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-  color: var(--foreground);
-  background: linear-gradient(to right, var(--accent), var(--accent-hover));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-`;
-
-const InputGroup = styled.div`
-  background: var(--primary);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid var(--border);
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 4px 6px var(--shadow);
-    transform: translateY(-2px);
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: ${({ variant }) => {
-    switch (variant) {
-      case 'primary':
-        return 'var(--accent)';
-      case 'secondary':
-        return 'var(--primary)';
-      case 'danger':
-        return 'var(--error)';
-      default:
-        return 'var(--accent)';
-    }
-  }};
-  color: ${({ variant }) =>
-    variant === 'secondary' ? 'var(--foreground)' : 'white'};
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px var(--shadow);
-    background: ${({ variant }) => {
-      switch (variant) {
-        case 'primary':
-          return 'var(--accent-hover)';
-        case 'secondary':
-          return 'var(--secondary)';
-        case 'danger':
-          return 'var(--error)';
-        default:
-          return 'var(--accent-hover)';
-      }
-    }};
-  }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-
-  justify-content: flex-start;
-
-  @media (max-width: 1024px) {
-    justify-content: center;
-  }
-`;
-
-const PairCounter = styled.span`
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  padding: 0.5rem 1rem;
-  background: var(--primary);
-  border-radius: 8px;
-  border: 1px solid var(--border);
-`;
+import { JSONLPreview } from '../Preview/Preview';
+import { Button } from '../UI/Button';
+import { ButtonContainer } from '../UI/ButtonContainer';
+import { ButtonGroup } from '../UI/ButtonGroup';
+import { FormContainer } from '../UI/FormContainer';
+import { InputGroup } from '../UI/InputGroup';
+import { PairCounter } from '../UI/PairCounter';
+import { Section } from '../UI/Section';
+import { SectionTitle } from '../UI/SectionTitle';
+import { StyledForm } from '../UI/StyledForm';
 
 interface FormValues {
   prompt: string;
   inputs: { req: string; res: string }[];
-}
-
-interface FormProps {
-  onSubmit: (values: FormValues) => void;
-  onChange: (values: FormValues) => void;
 }
 
 const validationSchema = Yup.object({
@@ -135,7 +29,7 @@ const validationSchema = Yup.object({
   ),
 });
 
-export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
+export const Form: FC = () => {
   const formikRef = useRef<any>(null);
 
   useEffect(() => {
@@ -174,7 +68,6 @@ export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
     }));
 
     generateJSONLFile(jsonlContent.map((item) => JSON.stringify(item)));
-    onSubmit(values);
   };
 
   return (
@@ -186,10 +79,6 @@ export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
         onSubmit={handleSubmit}
       >
         {({ values }) => {
-          useEffect(() => {
-            onChange(values);
-          }, [values, onChange]);
-
           return (
             <StyledForm>
               <Section>
@@ -245,9 +134,12 @@ export const Form: FC<FormProps> = ({ onChange, onSubmit }) => {
                 )}
               </FieldArray>
 
-              <Button type="submit" variant="primary">
-                Generate JSONL File
-              </Button>
+              <ButtonGroup>
+                <Button type="submit" variant="primary">
+                  Generate JSONL File
+                </Button>
+                <JSONLPreview formData={values} />
+              </ButtonGroup>
             </StyledForm>
           );
         }}

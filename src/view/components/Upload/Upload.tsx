@@ -1,26 +1,9 @@
-import styled from '@emotion/styled';
 import { observer } from 'mobx-react-lite';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useStore } from '../../../stores/StoreContext';
 import { FilePreview } from '../FilePreview/FilePreview';
-
-const PreviewButton = styled.button`
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-  }
-`;
+import { PreviewButton } from '../UI/PreviewButton';
 
 export const Upload = observer(() => {
   const { fileStore } = useStore();
@@ -34,7 +17,6 @@ export const Upload = observer(() => {
           const fileData = fileStore.getFile(fileId);
 
           if (fileData?.parsedData) {
-            // Dispatch a custom event with the parsed data
             const event = new CustomEvent('fileDataParsed', {
               detail: fileData.parsedData,
             });
